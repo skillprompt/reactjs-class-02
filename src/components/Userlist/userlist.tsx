@@ -22,6 +22,13 @@ export function UserList() {
    */
   const [name, setName] = useState();
 
+  const [countObj, setCount] = useState({
+    value: 0,
+    nestedCount: {
+      count: 0,
+    },
+  });
+
   const [users, setUsers] = useState<
     {
       id: number;
@@ -58,11 +65,38 @@ export function UserList() {
       // runs when component is unmounted
       console.log("unmounted from the ui");
     };
-  }, []);
+  }, [countObj.value]);
 
   return (
     <div>
       <h2>List of users</h2>
+      <button
+        onClick={() => {
+          setCount((prevStateValue) => {
+            return {
+              ...prevStateValue,
+              value: prevStateValue.value + 1,
+            };
+          });
+        }}
+      >
+        Fetch Data from api when value is changed
+      </button>
+      <button
+        onClick={() => {
+          setCount((prevStateValue) => {
+            return {
+              ...prevStateValue,
+              // value: prevStateValue.value + 1,
+              nestedCount: {
+                count: prevStateValue.nestedCount.count + 1,
+              },
+            };
+          });
+        }}
+      >
+        Don't fetch Data from api when other value is changed
+      </button>
       <ul>
         {users.map((user) => {
           return (
