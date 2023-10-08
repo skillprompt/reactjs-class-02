@@ -44,4 +44,9 @@ function getUsers() {
 
 ## integration with backend
 
+- GET
+- DELETE
+- POST
+- PUT / PATCH
+
 ## Project

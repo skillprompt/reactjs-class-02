@@ -1,7 +1,7 @@
 // BASE_URL: https://jsonplaceholder.typicode.com
 // posts has following type:
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { PostItem } from "./PostItem";
 
 /*
@@ -17,19 +17,34 @@ export type TPost = {
   userId: number;
 };
 
-const BASE_URL = "https://jsonplaceholder.typicode.com";
+export const BASE_URL = "https://jsonplaceholder.typicode.com";
 
-// TODO: 2. Write a function to make `GET` request to `/posts/:id` to fetch post by id.
+// HOMEWORK: 2. Write a function to make `GET` request to `/posts/:id` to fetch post by id.
 // async function getPostById(postId) {}
+// Add `view all` button to show the description/body
 
-// TODO: 3. Write a function to make `POST` request to `/posts` to create a post.
-// async function createPost({ title, body, userId }) {}
+// Write a function to make `POST` request to `/posts` to create a post.
+async function createPost(data: {
+  title: string;
+  body: string;
+  userId: number;
+}): Promise<TPost> {
+  return new Promise((resolve, reject) => {
+    fetch(`${BASE_URL}/posts`, {
+      method: "POST",
+      body: JSON.stringify(data),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((response) => response.json())
+      .then((data) => resolve(data))
+      .catch((error) => reject(error.message));
+  });
+}
 
-// TODO: 4. Write a function to make `PUT` request to `/posts/:id` to update a post.
+// HOMEWORK: Write a function to make `PUT` request to `/posts/:id` to update a post.
 // async function updatePost(postId) {}
-
-// TODO: 5. Write a function to make `PATCH` request to `/posts/:id` to patch a post.
-// async function patchPost(postId) {}
 
 // Write a function to make `DELETE` request to `/posts/:id` to delete a post.
 async function deletePostApi(postId: number) {
@@ -49,6 +64,8 @@ async function deletePostApi(postId: number) {
 
 export function IntegrationWithBackend() {
   const [posts, setPosts] = useState<TPost[]>([]);
+
+  const formRef = useRef<HTMLFormElement>(null);
 
   // Write a function to make `GET` request to `/posts` to fetch all posts.
   async function getAllPosts(): Promise<TPost[]> {
@@ -94,9 +111,59 @@ export function IntegrationWithBackend() {
     setPosts(postsWithDeleted);
   };
 
+  const handlePostCreate = async () => {
+    if (formRef.current) {
+      const formData = new FormData(formRef.current);
+
+      const title = (formData.get("title") as string) || "";
+      const body = (formData.get("body") as string) || "";
+
+      /**
+       * Perform api call to create the post
+       */
+      const createdPostData = await createPost({
+        title: title,
+        body: body,
+        userId: 1,
+      });
+
+      /**
+       * We need to update the data on the ui.
+       */
+      // const a = [1,2,3,4]
+      // const b = [5, ...a]
+      setPosts((prevPosts) => {
+        return [createdPostData, ...prevPosts];
+      });
+    }
+  };
+
   return (
     <div>
       <h1>Integration with backend</h1>
+
+      <div
+        style={{
+          margin: "20px auto",
+          width: "200px",
+        }}
+      >
+        <form ref={formRef}>
+          <div style={{ margin: "10px" }}>
+            <label htmlFor="title">Title</label>
+            <input name="title" id="title" />
+          </div>
+          <div style={{ margin: "10px" }}>
+            <label htmlFor="body">Body</label>
+            <textarea name="body" id="body" />
+          </div>
+          <div style={{ margin: "10px" }}>
+            <button type="button" onClick={handlePostCreate}>
+              Create Post
+            </button>
+          </div>
+        </form>
+      </div>
 
       <ul
         style={{
@@ -106,6 +173,7 @@ export function IntegrationWithBackend() {
         {posts.map((post) => {
           return (
             <PostItem
+              key={`${post.id}_${post.title}`}
               post={{
                 id: post.id,
                 body: post.body,
