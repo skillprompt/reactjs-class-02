@@ -65,6 +65,9 @@ async function deletePostApi(postId: number) {
 export function IntegrationWithBackend() {
   const [posts, setPosts] = useState<TPost[]>([]);
 
+  const [title, setTitle] = useState("");
+  const [body, setBody] = useState("");
+
   const formRef = useRef<HTMLFormElement>(null);
 
   // Write a function to make `GET` request to `/posts` to fetch all posts.
@@ -111,6 +114,7 @@ export function IntegrationWithBackend() {
     setPosts(postsWithDeleted);
   };
 
+  // method one: uncontrolled
   const handlePostCreate = async () => {
     if (formRef.current) {
       const formData = new FormData(formRef.current);
@@ -138,6 +142,33 @@ export function IntegrationWithBackend() {
     }
   };
 
+  // method two: controlled
+  const handlePostCreateMethodTwo = async () => {
+    console.log("title", title);
+    console.log("body", body);
+    /**
+     * Submit data to backend
+     */
+    const createdPostData = await createPost({
+      title,
+      body,
+      userId: 1,
+    });
+
+    /**
+     * clear the form
+     */
+    setTitle("");
+    setBody("");
+
+    /**
+     * update the data on the ui
+     */
+    setPosts((prevPosts) => {
+      return [createdPostData, ...prevPosts];
+    });
+  };
+
   return (
     <div>
       <h1>Integration with backend</h1>
@@ -151,14 +182,31 @@ export function IntegrationWithBackend() {
         <form ref={formRef}>
           <div style={{ margin: "10px" }}>
             <label htmlFor="title">Title</label>
-            <input name="title" id="title" />
+            <input
+              name="title"
+              id="title"
+              value={title}
+              onChange={(event) => {
+                const value = event.currentTarget.value;
+                // console.log("value", value);
+                setTitle(value);
+              }}
+            />
           </div>
           <div style={{ margin: "10px" }}>
             <label htmlFor="body">Body</label>
-            <textarea name="body" id="body" />
+            <textarea
+              name="body"
+              value={body}
+              id="body"
+              onChange={(event) => {
+                const value = event.currentTarget.value;
+                setBody(value);
+              }}
+            />
           </div>
           <div style={{ margin: "10px" }}>
-            <button type="button" onClick={handlePostCreate}>
+            <button type="button" onClick={handlePostCreateMethodTwo}>
               Create Post
             </button>
           </div>
