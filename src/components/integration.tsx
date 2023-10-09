@@ -1,8 +1,18 @@
 // BASE_URL: https://jsonplaceholder.typicode.com
 // posts has following type:
 
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useState } from "react";
 import { PostItem } from "./PostItem";
+import { PostForm } from "./PostForm";
+
+// function mySumCalculator() {
+//   const num =5;
+//   const calculator = () => {
+//     return 5 + 6;
+//   };
+
+//   calculator()
+// }
 
 /*
   id: number, 
@@ -65,11 +75,6 @@ async function deletePostApi(postId: number) {
 export function IntegrationWithBackend() {
   const [posts, setPosts] = useState<TPost[]>([]);
 
-  const [title, setTitle] = useState("");
-  const [body, setBody] = useState("");
-
-  const formRef = useRef<HTMLFormElement>(null);
-
   // Write a function to make `GET` request to `/posts` to fetch all posts.
   async function getAllPosts(): Promise<TPost[]> {
     let outerData: TPost[] = [];
@@ -115,37 +120,45 @@ export function IntegrationWithBackend() {
   };
 
   // method one: uncontrolled
-  const handlePostCreate = async () => {
-    if (formRef.current) {
-      const formData = new FormData(formRef.current);
+  // const handlePostCreate = async () => {
+  //   if (formRef.current) {
+  //     const formData = new FormData(formRef.current);
 
-      const title = (formData.get("title") as string) || "";
-      const body = (formData.get("body") as string) || "";
+  //     const title = (formData.get("title") as string) || "";
+  //     const body = (formData.get("body") as string) || "";
 
-      /**
-       * Perform api call to create the post
-       */
-      const createdPostData = await createPost({
-        title: title,
-        body: body,
-        userId: 1,
-      });
+  //     /**
+  //      * Perform api call to create the post
+  //      */
+  //     const createdPostData = await createPost({
+  //       title: title,
+  //       body: body,
+  //       userId: 1,
+  //     });
 
-      /**
-       * We need to update the data on the ui.
-       */
-      // const a = [1,2,3,4]
-      // const b = [5, ...a]
-      setPosts((prevPosts) => {
-        return [createdPostData, ...prevPosts];
-      });
-    }
-  };
+  //     /**
+  //      * We need to update the data on the ui.
+  //      */
+  //     // const a = [1,2,3,4]
+  //     // const b = [5, ...a]
+  //     setPosts((prevPosts) => {
+  //       return [createdPostData, ...prevPosts];
+  //     });
+  //   }
+  // };
 
   // method two: controlled
-  const handlePostCreateMethodTwo = async () => {
-    console.log("title", title);
-    console.log("body", body);
+  const handlePostCreateMethodTwo = async ({
+    title,
+    body,
+    setTitle,
+    setBody,
+  }: {
+    title: string;
+    body: string;
+    setTitle: (arg: string) => void;
+    setBody: (arg: string) => void;
+  }) => {
     /**
      * Submit data to backend
      */
@@ -173,46 +186,9 @@ export function IntegrationWithBackend() {
     <div>
       <h1>Integration with backend</h1>
 
-      <div
-        style={{
-          margin: "20px auto",
-          width: "200px",
-        }}
-      >
-        <form ref={formRef}>
-          <div style={{ margin: "10px" }}>
-            <label htmlFor="title">Title</label>
-            <input
-              name="title"
-              id="title"
-              value={title}
-              onChange={(event) => {
-                const value = event.currentTarget.value;
-                // console.log("value", value);
-                setTitle(value);
-              }}
-            />
-          </div>
-          <div style={{ margin: "10px" }}>
-            <label htmlFor="body">Body</label>
-            <textarea
-              name="body"
-              value={body}
-              id="body"
-              onChange={(event) => {
-                const value = event.currentTarget.value;
-                setBody(value);
-              }}
-            />
-          </div>
-          <div style={{ margin: "10px" }}>
-            <button type="button" onClick={handlePostCreateMethodTwo}>
-              Create Post
-            </button>
-          </div>
-        </form>
-      </div>
+      <PostForm handlePostCreateMethodTwo={handlePostCreateMethodTwo} />
 
+      {/* HOMEWOR: Make component for ul */}
       <ul
         style={{
           listStyle: "none",
